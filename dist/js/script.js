@@ -336,116 +336,10 @@ function showThanksModal() {
 }
 
 
-
-
-
 //slider
-//функция скрывает все слайдеры, кроме превого. Вычисляет кол-во слайдеров и подставляет в total
-// когда долистываем до конца при следующем клике отображается нулевой слайд
-
-// const slidersImg = document.querySelectorAll('.offer__slider-wrapper img'),
-// imgConteiner = document.querySelector('.offer__slider-wrapper'),
-// totalImg = document.querySelector('#total'),
-// countImg = document.querySelector('#current'),
-// leftButton = document.querySelector('.offer__slider-prev'),
-// rightButton = document.querySelector('.offer__slider-next'),
-// parentOfButtons = document.querySelectorAll('.offer__slider-counter div');
-
-
-// const imgCollection = [`<div class="offer__slide">
-// <img src="img/slider/pepper.jpg" alt="pepper">
-// </div>`,
-// `<div class="offer__slide">
-// <img src="img/slider/food-12.jpg" alt="food">
-// </div>`,
-// `<div class="offer__slide">
-// <img src="img/slider/olive-oil.jpg" alt="oil">
-// </div>`,
-// `<div class="offer__slide">
-// <img src="img/slider/paprika.jpg" alt="paprika">
-// </div>`]
-
-// parentOfButtons.forEach(item => {
-//     item.addEventListener('click', () => showSlide())
-// });
-
-// totalImg.innerText = `0` + imgCollection.length;
-
-
-// let counter = 3;
-
-// function showSlide() {
-
-//     if(event.target == rightButton) {
-//         imgConteiner.innerHTML = imgCollection[counter]
-//         countImg.innerHTML = `0${counter + 1}`;
-//         counter++;
-//         if(counter > imgCollection.length - 1) {
-//             counter = 0;
-//         }
-//     }
-
-//     if(event.target == leftButton) {
-//         counter--;
-//         imgConteiner.innerHTML = imgCollection[counter]
-//         countImg.innerHTML = `0${counter + 1}`;
-//         if(counter < 1) {
-//             counter = imgCollection.length;
-//         }
-//     }
-// }
-
-
-
-
-
-// let imgObj = {
-//     pepper: ` <div class="offer__slide">
-//     <img src="img/slider/pepper.jpg" alt="pepper">
-//     </div>`,
-//     salat: `<div class="offer__slide">
-//     <img src="img/slider/food-12.jpg" alt="food">
-//     </div>`, 
-//     olive: `<div class="offer__slide">
-//     <img src="img/slider/olive-oil.jpg" alt="oil">
-//     </div>`,
-//     paprika: `<div class="offer__slide">
-//     <img src="img/slider/paprika.jpg" alt="paprika">
-//     </div>`,
-// }
-
-// parentOfButtons.forEach(item => {
-//     item.addEventListener('click', () => showSlide())
-// });
-
-
-// const objValues = Object.values(imgObj);
-// totalImg.innerText = `0` + objValues.length;
-
-// let counter = 3;
-
-// function showSlide() {
-
-//     if(event.target == rightButton) {
-//         imgConteiner.innerHTML = objValues[counter]
-//         countImg.innerHTML = `0${counter + 1}`;
-//         counter++;
-//         if(counter == objValues.length) {
-//             counter = 0;
-//         }
-//     }
-
-//     if(event.target == leftButton) {
-//         counter--;
-//         imgConteiner.innerHTML = objValues[counter]
-//         countImg.innerHTML = `0${counter + 1}`;
-//         if(counter == 0) {
-//             counter = objValues.length;
-//         }
-//     }
-// }
 
 const slides = document.querySelectorAll('.offer__slide'),
+slider = document.querySelector('.offer__slider'),
 prev = document.querySelector('.offer__slider-prev'),
 next = document.querySelector('.offer__slider-next'),
 total = document.querySelector('#total'),
@@ -453,6 +347,8 @@ current = document.querySelector('#current'),
 slidesWrapper = document.querySelector('.offer__slider-wrapper'),
 slidesField = document.querySelector('.offer__slider-inner'),
 width = window.getComputedStyle(slidesWrapper).width;
+
+
 
 let slideIndex = 1;
 let offset = 0;
@@ -477,6 +373,56 @@ slides.forEach(item => {
     item.style.width = width;
 }); 
 
+slider.style.position = 'relative';
+
+const indicators = document.createElement('ol'),
+    dots = [];
+
+
+
+indicators.classList.add('carousel-indicators');
+indicators.style.cssText = `
+position: absolute;
+right: 0;
+bottom: 0;
+left: 0;
+z-index: 15;
+display: flex;
+justify-content: center;
+margin-right: 15%;
+margin-left: 15%;
+list-style: none;
+`;
+
+slider.append(indicators);
+
+for(let i = 0; i < slides.length; i++) {
+    const dot = document.createElement('li')
+    dot.setAttribute('data-slide-to', i + 1)
+    dot.style.cssText = `
+    box-sizing: content-box;
+    flex: 0 1 auto;
+    width: 30px;
+    height: 6px;
+    margin-right: 3px;
+    margin-left: 3px;
+    cursor: pointer;
+    background-color: #fff;
+    background-clip: padding-box;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    opacity: .5;
+    transition: opacity .6s ease;    
+    `;
+    if (i === 0) {
+        dot.style.opacity = 1;
+    }
+    indicators.append(dot);
+    dots.push(dot);
+}
+
+
+
 next.addEventListener('click', () => {
     if (offset == +width.slice(0, width.length - 2) * (slides.length - 1)) {
         offset = 0;
@@ -496,6 +442,10 @@ next.addEventListener('click', () => {
     } else {
         current.textContent =  slideIndex;
     }
+
+    dots.forEach( dot => dot.style.opacity = '.5');
+    dots[slideIndex - 1].style.opacity = 1;
+
 })
 
 prev.addEventListener('click', () => {
@@ -519,59 +469,31 @@ prev.addEventListener('click', () => {
     } else {
         current.textContent =  slideIndex;
     }
+
+    dots.forEach( dot => dot.style.opacity = '.5');
+    dots[slideIndex - 1].style.opacity = 1;
 })
 
+dots.forEach( (dot) => {
+    dot.addEventListener('click', (event) => {
+        const slideTo = event.target.getAttribute('data-slide-to');
 
-// showSlides(slideIndex);
+        slideIndex = slideTo;
+        offset = +width.slice(0, width.length - 2) * (slideTo - 1);
 
-// if(slides.length < 10) {
-//     total.textContent = `0${slides.length}`;
-// } else {
-//     total.textContent = slides.length;
-// }
-
-// function showSlides(n) {
-
-//     if(n > slides.length) {
-//         slideIndex = 1
-//     }
-
-//     if(n < 1) {
-//         slideIndex = 1
-//     }
-
-//     slides.forEach(item => {
-//         item.style.display = 'none'
-//     });
-
-//     slides[slideIndex - 1].style.display = 'block'
-
-//     if(slides.length < 10) {
-//        current.textContent = `0${slideIndex}`;
-//     } else {
-//         current.textContent = slideIndex;
-//     }
-
-//     function plusSlides(n) {
-//         showSlides(slideIndex += n)
-//     }
-//     prev.addEventListener('click', () => {
-//         plusSlides(-1)
-//     })
-
-//     next.addEventListener('click', () => {
-//         plusSlides(1)
-//     })
-// }
+        slidesField.style.transform = `translateX(-${offset}px)`
 
 
+        if(slides.length < 10) {
+        current.textContent = `0${slideIndex}`;
+            } else {
+        current.textContent =  slideIndex;
+        }
 
-
-
- 
-
-
-
+        dots.forEach( dot => dot.style.opacity = '.5');
+        dots[slideIndex - 1].style.opacity = 1;
+    })
+})
 
 
 })
